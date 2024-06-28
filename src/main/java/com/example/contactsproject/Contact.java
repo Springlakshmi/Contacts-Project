@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name="contacts")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Contacts {
+public class Contact {
 
     @Id
     private int id;
@@ -21,7 +21,5 @@ public class Contacts {
     private String gmail;
     private long phoneNumber;
     private String address;
-
-
 
 }
