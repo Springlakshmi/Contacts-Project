@@ -1,34 +1,38 @@
-package com.example.contactsproject;
-
-
+package com.example.contactsproject.service;
 import com.example.contactsproject.models.Contact;
+import com.example.contactsproject.repo.ContactsRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
 
-@RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/contacts")
-public class ContactsController {
+@Service
 
-    private final ContactsRepo contactsRepo;
 
-    @PostMapping("/create")
-    public ResponseEntity<Contact> createContact(@RequestBody Contact contact) {
+public class ContactServiceImpl implements ContactService {
+    @Autowired
+     private final ContactsRepo contactsRepo;
+
+    @Override
+    public ResponseEntity<Contact> createContact(Contact contact) {
         log.info("creating contact: {}", contact);
         Contact savedContact = contactsRepo.save(contact);
         log.info("contact created successfully: {}", contact);
         return new ResponseEntity<>(savedContact, HttpStatus.CREATED);
+
     }
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Contact> updateContactBYID(@PathVariable int id,@RequestBody Contact contact){
+
+
+    @Override
+
+    public ResponseEntity<Contact> updateContactBYId(int id, Contact contact) {
         log.info("updating contact by {}:", id);
         Contact existingContact =contactsRepo.findById(id);
         if (!ObjectUtils.isEmpty(existingContact)) {
@@ -39,23 +43,22 @@ public class ContactsController {
             existingContact.setEmail(contact.getEmail());
             Contact updatedContact = contactsRepo.save(existingContact);
             log.info("contact updated successfully by {}:", id);
-          return new ResponseEntity<>(updatedContact,HttpStatus.OK);
+            return new ResponseEntity<>(updatedContact,HttpStatus.OK);
         }
         else {
 
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Contacts> deleteContactById(@PathVariable int id) {
-        log.info("contact deleted successfully:" + id);
-        Optional<Contacts> contact = contactsRepo.findById(id);
-
-
-        if (contact.isPresent()) {
+    @Override
+    public ResponseEntity<Contact> deleteContactById(int id){
+        log.info("deleting contact by {}:", id);
+        Contact existingContact =contactsRepo.findById(id);
+        if (!ObjectUtils.isEmpty(existingContact)) {
 
             contactsRepo.deleteById(id);
+            log.info("contact deleted successfully by {}:", id);
+
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         else {
@@ -63,15 +66,14 @@ public class ContactsController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    @GetMapping("/read")
-    public ResponseEntity<List<Contacts>> readContacts(){
+    public ResponseEntity<List<Contact>> readContacts(){
         log.info("getting the data from contacts list:"   );
         return new ResponseEntity<>(contactsRepo.findAll(),HttpStatus.OK);
 
     }
-    @GetMapping("/contact/{id}")
-    public ResponseEntity<Contacts> getContactByID(@PathVariable Integer id){
-        Optional<Contacts> contact=contactsRepo.findById(id);
+    public ResponseEntity<Contact> getContactByID(Integer id){
+
+        Optional<Contact> contact=contactsRepo.findById(id);
 
         if(contact.isPresent()){
             log.info("getting contact with id: {}", id);
@@ -84,3 +86,6 @@ public class ContactsController {
 
     }
 }
+
+
+
